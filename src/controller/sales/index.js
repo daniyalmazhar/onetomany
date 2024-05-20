@@ -1,28 +1,17 @@
+import SalesModel from "../../model/sales/index.js";
+import SaleProductModel from "../../model/sales/salesProducts.js";
 import StudentModel from "../../model/student/index.js";
 
-const students = [
-  {
-    name: "Ali",
-    class: "MR-16",
-  },
-  {
-    name: "Hamza",
-    class: "MR-15",
-  },
-];
-const StudentController = {
+const SalesController = {
   getAll: async (req, res) => {
     try {
-      const students = await StudentModel.findAll({
-        where: {
-          firstName: "Ali",
-        },
+      const sales = await SalesModel.findAll({
         order: [["createdAt", "DESC"]],
         limit: 5,
       });
 
       res.json({
-        data: students,
+        data: sales,
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error", error });
@@ -32,20 +21,17 @@ const StudentController = {
     try {
       const { id } = req.params;
 
-      const student = await StudentModel.findByPk(id);
-      // await StudentModel.findOne({
-      //   where: {
-      //     id,
-      //   },
-      // });
+      const sale = await SalesModel.findByPk(id, {
+        include: [SaleProductModel],
+      });
 
-      // const student = students.find((ele) => ele.name == name);
-      if (!student) {
-        return res.status(404).json({ message: "No student with this name" });
+      if (!sale) {
+        return res.status(404).json({ message: "No sale with this name" });
       }
-      res.status(200).json({ data: student });
+      res.status(200).json({ data: sale });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      console.log(error);
+      res.status(500).json({ message: "Internal server error", error });
     }
   },
   create: async (req, res) => {
@@ -54,23 +40,25 @@ const StudentController = {
 
       console.log(payload, "payload");
 
-      // const student = await StudentModel.create({
-      //   firstName: payload.firstName,
-      //   lastName: payload.lastName,
-      //   phone: payload.phone,
-      // });
+      const sale = new SalesModel();
+      // sale.firstName = payload.firstName;
+      sale.totalAmount = 1;
 
-      const student = new StudentModel();
-      // student.firstName = payload.firstName;
-      student.lastName = payload.lastName;
-      student.phone = payload.phone;
+      await sale.save();
 
-      await student.save();
+      const salesProduct = payload.salesProduct.map((ele) => {
+        return {
+          ...ele,
+          SaleId: sale.id,
+        };
+      });
 
-      res.status(200).json({ message: "Student created", student });
+      await SaleProductModel.bulkCreate(salesProduct);
+
+      res.status(200).json({ message: "sale created", sale });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "Internal server error",error });
     }
   },
   update: (req, res) => {
@@ -117,6 +105,24 @@ const StudentController = {
       res.status(500).json({ message: "Internal server error" });
     }
   },
+  getSaleProducts: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const saleProducts = await SaleProductModel.findAll({
+        where: { SaleId: id },
+      });
+
+      if (saleProducts.length === 0) {
+        return res.status(404).json({ message: "No products found for this sale" });
+      }
+
+      res.status(200).json({ data: saleProducts });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal server error", error });
+    }
+  },
 };
 
-export default StudentController;
+export default SalesController;
