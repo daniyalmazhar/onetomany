@@ -42,7 +42,7 @@ const productController = {
         
             console.log(payload, "payload");
         
-            const product = new ProductModel();
+            const product = new productModel();
             product.productName = payload.productName;
             product.productStock = payload.productStock;
             product.productRate = payload.productRate;
@@ -52,7 +52,7 @@ const productController = {
             res.status(200).json({ message: "Product created", product });
           } catch (error) {
             console.log(error);
-            res.status(500).json({ message: "Internal server error" });
+            res.status(500).json({ message: "Internal server error", error});
           }
         },
       
