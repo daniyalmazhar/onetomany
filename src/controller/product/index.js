@@ -17,7 +17,8 @@ const productController = {
         res.status(500).json({ message: "Internal server error", error });
       }
     },
-    getSingle: async (req, res) => {
+    getSingle: async (req, res) => { 
+        
       try {
         const { id } = req.params;
   
