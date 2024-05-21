@@ -1,6 +1,7 @@
 import SalesModel from "../../model/sales/index.js";
+import productModel from "../../model/sales/product.js";
 import SaleProductModel from "../../model/sales/salesProducts.js";
-import StudentModel from "../../model/student/index.js";
+
 
 const SalesController = {
   getAll: async (req, res) => {
@@ -22,7 +23,11 @@ const SalesController = {
       const { id } = req.params;
 
       const sale = await SalesModel.findByPk(id, {
-        include: [SaleProductModel],
+        include: [{
+          model :SaleProductModel, 
+          include: [productModel]
+        }
+        ]
       });
 
       if (!sale) {
@@ -79,12 +84,6 @@ const SalesController = {
         students[studentIndex].class = payload.class;
       }
 
-      // students[studentIndex].name = payload.name
-      //   ? payload.name
-      //   : students[studentIndex].name;
-      // students[studentIndex].class = payload.class
-      //   ? payload.class
-      //   : students[studentIndex].class;
 
       res.status(200).json({ message: "Student Updated", students });
     } catch (error) {

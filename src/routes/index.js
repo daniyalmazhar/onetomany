@@ -1,8 +1,6 @@
-import classRoutes from "./class/index.js";
+import productRouter from "./product/index.js";
 import salesRouter from "./sales/index.js";
-import studentRouter from "./student/index.js";
-import teacherRoutes from "./teacher/index.js";
 
-const allRoutes = [studentRouter, teacherRoutes, classRoutes, salesRouter];
+const allRoutes = [salesRouter, productRouter];
 
 export default allRoutes;
